@@ -1,0 +1,17 @@
+devel/git
+mail/mutt
+misc/bogosort
+net/rsync
+ports-mgmt/dialog4ports
+ports-mgmt/pkg
+ports-mgmt/poudriere-devel
+security/sudo
+shells/bash
+sysutils/ezjail
+sysutils/nut
+sysutils/screen
+sysutils/smartmontools
+sysutils/uptimed
+sysutils/zfs-stats
+sysutils/zfstools
+www/nginx
