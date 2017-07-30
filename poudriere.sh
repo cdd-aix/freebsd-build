@@ -24,6 +24,12 @@ pzfs() {
 	gnop destroy /dev/ada1.nop
 	zpool import poudriere
     fi
+    if [ "$(sysrc -n zfs_enable)" = "NO" ]; then
+	sysrc zfs_enable=YES
+	zfs import | while read -r pool; do
+	    zfs import "$pool"
+	done
+    fi
 }
 
 poud() {
@@ -47,7 +53,7 @@ PRESERVE_TIMESTAMP=yes
 HTML_TRACK_REMAINING=yes
 ALLOW_MAKE_JOBS=yes
 KEEP_OLD_PACKAGES=yes
-PRIORITY_BOOST="llvm* cmake"
+PRIORITY_BOOST="llvm*"
 EOF
     cp -p /vagrant/*.conf /usr/local/etc/poudriere.d
 
