@@ -6,36 +6,40 @@
 # backwards compatibility). Please don't change it unless you know what
 # you're doing.
 Vagrant.configure("2") do |config|
-  # The most common configuration options are documented and commented below.
-  # For a complete reference, please see the online documentation at
-  # https://docs.vagrantup.com.
-
-  # Every Vagrant development environment requires a box. You can search for
-  # boxes at https://atlas.hashicorp.com/search.
+  VAGRANT_ROOT = File.dirname(File.expand_path(__FILE__))
+  file_to_disk = File.join(VAGRANT_ROOT, 'poudriere.vdi')
   # From https://groups.google.com/forum/#!topic/vagrant-up/dNnloUOVCI4
   config.vm.guest = :freebsd
-  config.vm.synced_folder ".", "/vagrant", id: "vagrant-root", type: "rsync"
+  config.vm.synced_folder ".", "/vagrant", id: "vagrant-root", type: "nfs"
   config.ssh.shell = "sh"
   config.vm.base_mac = "080027D14C66"
-  config.vm.box = "freebsd/FreeBSD-11.1-STABLE"
+  config.vm.box = "freebsd/FreeBSD-11.1-RELEASE"
   config.vm.provider :virtualbox do |vb|
-    vb.customize ["modifyvm", :id, "--memory", "3072"]
+    vb.customize ["modifyvm", :id, "--memory", "2048"]
     vb.customize ["modifyvm", :id, "--cpus", "4"]
     vb.customize ["modifyvm", :id, "--hwvirtex", "on"]
     vb.customize ["modifyvm", :id, "--audio", "none"]
     vb.customize ["modifyvm", :id, "--nictype1", "virtio"]
     vb.customize ["modifyvm", :id, "--nictype2", "virtio"]
+    unless File.exists?(file_to_disk)
+      vb.customize ['createhd', '--filename', file_to_disk, '--size', 500 * 1024]
+    end
+    vb.customize ['storageattach', :id, '--storagectl',
+                  'IDE Controller', '--port', 1, '--device', 0,
+                  '--type', 'hdd', '--medium', file_to_disk]
   end
 
+
+
   # We want an easy export of poudriere cache and packages
-  config.vm.synced_folder "../freebsd-build-poudriere/cache",
-                          "/usr/local/poudriere/data/cache",
-                          id: "poudriere-cache",
-                          nfs: true
-  config.vm.synced_folder "../freebsd-build-poudriere/packages",
-                          "/usr/local/poudriere/data/packages",
-                          id: "poudriere-packages",
-                          nfs: true
+  # config.vm.synced_folder "../freebsd-build-poudriere/cache",
+  #                         "/usr/local/poudriere/data/cache",
+  #                         id: "poudriere-cache",
+  #                         nfs: true
+  # config.vm.synced_folder "../freebsd-build-poudriere/packages",
+  #                         "/usr/local/poudriere/data/packages",
+  #                         id: "poudriere-packages",
+  #                         nfs: true
 
   config.vm.provision "shell" do |s|
     s.path = "poudriere.sh"
