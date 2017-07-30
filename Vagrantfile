@@ -12,18 +12,34 @@ Vagrant.configure("2") do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
+  # From https://groups.google.com/forum/#!topic/vagrant-up/dNnloUOVCI4
   config.vm.guest = :freebsd
   config.vm.synced_folder ".", "/vagrant", id: "vagrant-root", type: "rsync"
   config.ssh.shell = "sh"
   config.vm.base_mac = "080027D14C66"
   config.vm.box = "freebsd/FreeBSD-11.1-STABLE"
   config.vm.provider :virtualbox do |vb|
-    vb.customize ["modifyvm", :id, "--memory", "1024"]
-    vb.customize ["modifyvm", :id, "--cpus", "1"]
+    vb.customize ["modifyvm", :id, "--memory", "3072"]
+    vb.customize ["modifyvm", :id, "--cpus", "4"]
     vb.customize ["modifyvm", :id, "--hwvirtex", "on"]
     vb.customize ["modifyvm", :id, "--audio", "none"]
     vb.customize ["modifyvm", :id, "--nictype1", "virtio"]
     vb.customize ["modifyvm", :id, "--nictype2", "virtio"]
+  end
+
+  # We want an easy export of poudriere cache and packages
+  config.vm.synced_folder "../freebsd-build-poudriere/cache",
+                          "/usr/local/poudriere/data/cache",
+                          id: "poudriere-cache",
+                          nfs: true
+  config.vm.synced_folder "../freebsd-build-poudriere/packages",
+                          "/usr/local/poudriere/data/packages",
+                          id: "poudriere-packages",
+                          nfs: true
+
+  config.vm.provision "shell" do |s|
+    s.path = "poudriere.sh"
+    s.args = [ "init" ]
   end
 
   # Disable automatic box update checking. If you disable this, then
@@ -44,6 +60,7 @@ Vagrant.configure("2") do |config|
   # Bridged networks make the machine appear as another physical device on
   # your network.
   # config.vm.network "public_network"
+  config.vm.network "private_network", type: "dhcp"
 
   # Share an additional folder to the guest VM. The first argument is
   # the path on the host to the actual folder. The second argument is
