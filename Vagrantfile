@@ -15,7 +15,7 @@ Vagrant.configure("2") do |config|
   config.vm.base_mac = "080027D14C66"
   config.vm.box = "freebsd/FreeBSD-11.1-RELEASE"
   config.vm.provider :virtualbox do |vb|
-    vb.customize ["modifyvm", :id, "--memory", "2048"]
+    vb.customize ["modifyvm", :id, "--memory", "4096"]
     vb.customize ["modifyvm", :id, "--cpus", "4"]
     vb.customize ["modifyvm", :id, "--hwvirtex", "on"]
     vb.customize ["modifyvm", :id, "--audio", "none"]
