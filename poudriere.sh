@@ -10,12 +10,13 @@ init() {
     else
 	pkg upgrade "$poud"
     fi
+
     mv -v "$conf" "$conf.$(sha256 -q "$conf")"
     cat > "$conf" <<EOF
 NO_ZFS=yes
 FREEBSD_HOST=https://download.FreeBSD.org
 RESOLV_CONF=/etc/resolv.conf
-BASEFS=/usr/local/poudriere.nfs
+BASEFS=/usr/local/poudriere
 USE_TMPFS=yes
 DISTFILES_CACHE=/usr/ports/distfiles
 BAD_PKGNAME_DEPS_ARE_FATAL=yes
@@ -43,9 +44,13 @@ EOF
     fi
     cp -p /vagrant/*.conf /usr/local/etc/poudriere.d
 }
+
 build() {
     #shellcheck disable=SC2046
-    poudriere bulk -j "$jail" -p default -z default $(cat /vagrant/build-patterns/host/*)
+    for b in mf bb3 bb2; do
+	poudriere bulk -j "$jail" -p default -z tweak \
+		  $(grep -h -v "^#" /vagrant/build-patterns/host/"$b")
+    done
 }
 main() {
     case "$1" in
