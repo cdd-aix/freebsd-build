@@ -9,7 +9,7 @@ Vagrant.configure("2") do |config|
   VAGRANT_ROOT = File.dirname(File.expand_path(__FILE__))
   file_to_disk = File.join(VAGRANT_ROOT, 'poudriere.vdi')
   # From https://groups.google.com/forum/#!topic/vagrant-up/dNnloUOVCI4
-  config.vm.guest = :freebsd
+  config.vm.guest = :linux
   config.vm.synced_folder ".", "/vagrant", id: "vagrant-root", type: "nfs"
   config.ssh.shell = "sh"
   config.vm.base_mac = "080027D14C66"
