@@ -33,7 +33,7 @@ pzfs() {
 }
 
 poud() {
-    pkg install -y "$poud" git
+    pkg install -q -y "$poud" git
 
     mv -v "$conf" "$conf.$(sha256 -q "$conf")"
     cat > "$conf" <<EOF
