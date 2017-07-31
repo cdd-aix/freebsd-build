@@ -30,6 +30,11 @@ pzfs() {
 	    zfs import "$pool"
 	done
     fi
+    if [ ! -e "/dev/zvol/$POOL/swap" ]; then
+	zfs create -V 3G -o org.freebsd:swap=on -o checksum=off -o compression=off -o dedup=off -o sync=disabled -o primarycache=none "$POOL/swap"
+	swapon "/dev/zvol/$POOL/swap"
+    fi
+
 }
 
 poud() {
