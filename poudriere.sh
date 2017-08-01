@@ -64,11 +64,16 @@ ALLOW_MAKE_JOBS=yes
 KEEP_OLD_PACKAGES=yes
 PRIORITY_BOOST="llvm*"
 EOF
-    cp -p /vagrant/*.conf /usr/local/etc/poudriere.d
 
     mkdir -p /usr/ports/distfiles
     poudriere jail -c -j "$jail" -v "$jailver" || :
     poudriere ports -c -p "$ports" -m git || :
+    cp -pr /vagrant/*.conf* /usr/local/etc/poudriere.d
+
+    for d in /usr/local/etc/poudriere.d/*.conf.d; do
+	e="${d%.d}"
+	cat "$d"/* > "${e}"
+    done
 }
 
 init() {

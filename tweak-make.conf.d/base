@@ -1,7 +1,7 @@
 LLVM_VERSION=40 # See what breaks with LLVM 4.0
-OPTIONS_DEFAULT+=BCLANG # We want BCLANG not gcc for haskell ports.  May impact others
+# OPTIONS_DEFAULT+=BCLANG # We want BCLANG not gcc for haskell ports.  May impact others
 OPTIONS_DEFAULT+=LLVM
-OPTIONS_DEFAULT-=GCC
+# OPTIONS_DEFAULT-=GCC
 databases_cassandra2_SET+=MX4J CQL
 databases_monetdb_SET+=GEOM
 databases_mongodb_SET+=SASL
