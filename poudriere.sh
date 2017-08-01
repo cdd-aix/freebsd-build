@@ -1,9 +1,12 @@
-#!/bin/sh -ex
+#!/bin/sh -eux
 jail=111
 jailver=11.1-RELEASE
+ports=default
+set=tweak
 # jailver2=11.1-RELEASE-p0
 conf="/usr/local/etc/poudriere.conf"
 poud="ports-mgmt/poudriere-devel"
+
 
 pzfs() {
     POOL=poudriere
@@ -50,6 +53,7 @@ RESOLV_CONF=/etc/resolv.conf
 BASEFS=/usr/local/poudriere
 USE_TMPFS=yes
 DISTFILES_CACHE=/usr/ports/distfiles
+CHECK_CHANGED_OPTIONS=verbose
 BAD_PKGNAME_DEPS_ARE_FATAL=yes
 CCACHE_DIR=/var/cache/ccache
 TIMESTAMP_LOGS=yes
@@ -64,7 +68,7 @@ EOF
 
     mkdir -p /usr/ports/distfiles
     poudriere jail -c -j "$jail" -v "$jailver" || :
-    poudriere ports -c -p default -m git || :
+    poudriere ports -c -p "$ports" -m git || :
 }
 
 init() {
@@ -73,11 +77,17 @@ init() {
 }
 
 build() {
-    #shellcheck disable=SC2046
-    for b in mf bb3 bb2; do
-	poudriere bulk -j "$jail" -p default -z tweak \
-		  $(grep -h -v "^#" /vagrant/build-patterns/host/"$b")
-    done
+    tobuild=$(grep -h -v '^#' /vagrant/build-patterns/host/*)
+    # shellcheck disable=SC2086
+    poudriere bulk -v -j "$jail" -p "$ports" -z "$set" $tobuild
+}
+
+clean() {
+    poudriere pkgclean -A -j "$jail" -p "$ports" -z "$set" -y
+}
+
+update() {
+    poudriere ports -p "$ports" -u
 }
 main() {
     case "$1" in
@@ -86,6 +96,12 @@ main() {
 	    ;;
 	build)
 	    build
+	    ;;
+	clean)
+	    clean
+	    ;;
+	update)
+	    update
 	    ;;
     esac
 }
