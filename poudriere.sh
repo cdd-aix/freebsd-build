@@ -63,6 +63,7 @@ HTML_TRACK_REMAINING=yes
 ALLOW_MAKE_JOBS=yes
 KEEP_OLD_PACKAGES=yes
 PRIORITY_BOOST="llvm*"
+CHECK_CHANGED_OPTIONS=verbose
 EOF
 
     mkdir -p /usr/ports/distfiles
@@ -82,6 +83,9 @@ init() {
 }
 
 build() {
+    poudriere bulk -v -j "$jail" -p "$ports" -z "$set" www/hs-yesod-core
+    poudriere bulk -v -j "$jail" -p "$ports" -z "$set" www/hs-DAV
+    poudriere bulk -v -j "$jail" -p "$ports" -z "$set" devel/hs-git-annex
     tobuild=$(grep -h -v '^#' /vagrant/build-patterns/host/*)
     # shellcheck disable=SC2086
     poudriere bulk -v -j "$jail" -p "$ports" -z "$set" $tobuild

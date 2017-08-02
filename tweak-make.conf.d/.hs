@@ -1,3 +1,4 @@
+# -*- mode: makefile; -*-
 archivers_hs-tar_UNSET+=GCC
 archivers_hs-tar_SET+=BCLANG
 archivers_hs-zip-archive_UNSET+=GCC
@@ -760,8 +761,8 @@ textproc_hs-blaze-markup_UNSET+=GCC
 textproc_hs-blaze-markup_SET+=BCLANG
 textproc_hs-bytestring-csv_UNSET+=GCC
 textproc_hs-bytestring-csv_SET+=BCLANG
-textproc_hs-case-insensitive_UNSET+=GCC
-textproc_hs-case-insensitive_SET+=BCLANG
+# textproc_hs-case-insensitive_UNSET+=GCC
+# textproc_hs-case-insensitive_SET+=BCLANG
 textproc_hs-cassava_UNSET+=GCC
 textproc_hs-cassava_SET+=BCLANG
 textproc_hs-citeproc-hs_UNSET+=GCC
@@ -846,8 +847,8 @@ textproc_hs-xmlhtml_UNSET+=GCC
 textproc_hs-xmlhtml_SET+=BCLANG
 textproc_hs-yaml_UNSET+=GCC
 textproc_hs-yaml_SET+=BCLANG
-www_hs-DAV_UNSET+=GCC
-www_hs-DAV_SET+=BCLANG
+# www_hs-DAV_UNSET+=GCC
+# www_hs-DAV_SET+=BCLANG
 www_hs-HTTP_UNSET+=GCC
 www_hs-HTTP_SET+=BCLANG
 www_hs-activehs_UNSET+=GCC
