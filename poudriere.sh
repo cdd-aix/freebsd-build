@@ -41,30 +41,9 @@ pzfs() {
 }
 
 poud() {
-    pkg install -q -y "$poud" git
-
+    pkg install -q -y "$poud" git www/nginx
     mv -v "$conf" "$conf.$(sha256 -q "$conf")"
-    cat > "$conf" <<EOF
-ZPOOL=poudriere
-ZROOTFS=/poudriere
-# NO_ZFS=yes
-FREEBSD_HOST=https://download.FreeBSD.org
-RESOLV_CONF=/etc/resolv.conf
-BASEFS=/usr/local/poudriere
-USE_TMPFS=yes
-DISTFILES_CACHE=/usr/ports/distfiles
-CHECK_CHANGED_OPTIONS=verbose
-BAD_PKGNAME_DEPS_ARE_FATAL=yes
-CCACHE_DIR=/var/cache/ccache
-TIMESTAMP_LOGS=yes
-BUILDER_HOSTNAME=bb3.ligonmill.nc.us
-PRESERVE_TIMESTAMP=yes
-HTML_TRACK_REMAINING=yes
-ALLOW_MAKE_JOBS=yes
-KEEP_OLD_PACKAGES=yes
-PRIORITY_BOOST="llvm*"
-CHECK_CHANGED_OPTIONS=verbose
-EOF
+    cp "/vagrant/${conf##*/}" "$conf"
 
     mkdir -p /usr/ports/distfiles
     poudriere jail -c -j "$jail" -v "$jailver" || :
@@ -75,6 +54,13 @@ EOF
 	e="${d%.d}"
 	cat "$d"/* > "${e}"
     done
+    ln -snf /usr/local/poudriere/data/logs/bulk /usr/local/www/nginx/poudriere-bulk
+    ln -snf /usr/local/poudriere/data/packages /usr/local/www/nginx/packages
+    sysrc nginx_enable="YES"
+    sysrc poudriered_enable="YES"
+    service nginx status || service nginx start
+    service poudriered status || service poudriered start
+    poudriere queue bulk -j "$jail" -p "$ports" -z "$set" ports-mgmt/pkg
 }
 
 init() {

@@ -31,6 +31,7 @@ Vagrant.configure("2") do |config|
 
   # required for NFS shared folder
   config.vm.network "private_network", type: "dhcp"
+  config.vm.network "forwarded_port", guest: 80, host: 8080
 
   config.vm.synced_folder ".", "/vagrant", id: "vagrant-root", type: "nfs"
 
