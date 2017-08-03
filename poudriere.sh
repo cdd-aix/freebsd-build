@@ -35,14 +35,14 @@ pzfs() {
 	done
     fi
     if [ ! -e "/dev/zvol/$POOL/swap" ]; then
-	zfs create -V 4G -o org.freebsd:swap=on -o checksum=off -o compression=off -o dedup=off -o sync=disabled -o primarycache=none "$POOL/swap"
+	zfs create -V 7G -o org.freebsd:swap=on -o checksum=off -o compression=off -o dedup=off -o sync=disabled -o primarycache=none "$POOL/swap"
 	swapon "/dev/zvol/$POOL/swap"
     fi
 
 }
 
 poud() {
-    pkg install -q -y "$poud" git www/nginx
+    pkg install -q -y "$poud" git www/nginx shells/bash
     mv -v "$pconf" "$pconf.$(sha256 -q "$pconf")"
     cp "/vagrant/${pconf##*/}" "$pconf"
     mv -v "$nconf" "$nconf.$(sha256 -q "$pconf")"
@@ -59,8 +59,14 @@ poud() {
     done
     sysrc nginx_enable="YES"
     sysrc poudriered_enable="YES"
-    service nginx restart || service nginx start
-    service poudriered status || service poudriered start
+    if service nginx status; then
+	service nginx stop;
+	sleep 2;
+	service nginx start;
+    else
+	service nginx start
+    fi
+    service poudriered restart
     poudriere queue bulk -j "$jail" -p "$ports" -z "$set" ports-mgmt/pkg
 }
 
@@ -70,9 +76,9 @@ init() {
 }
 
 build() {
-    poudriere bulk -v -j "$jail" -p "$ports" -z "$set" www/hs-yesod-core
-    poudriere bulk -v -j "$jail" -p "$ports" -z "$set" www/hs-DAV
-    poudriere bulk -v -j "$jail" -p "$ports" -z "$set" devel/hs-git-annex
+    # poudriere bulk -v -j "$jail" -p "$ports" -z "$set" www/hs-yesod-core
+    # poudriere bulk -v -j "$jail" -p "$ports" -z "$set" www/hs-DAV
+    # poudriere bulk -v -j "$jail" -p "$ports" -z "$set" devel/hs-git-annex
     tobuild=$(grep -h -v '^#' /vagrant/build-patterns/host/*)
     # shellcheck disable=SC2086
     poudriere bulk -v -j "$jail" -p "$ports" -z "$set" $tobuild
