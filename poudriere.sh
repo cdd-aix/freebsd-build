@@ -4,7 +4,8 @@ jailver=11.1-RELEASE
 ports=default
 set=tweak
 # jailver2=11.1-RELEASE-p0
-conf="/usr/local/etc/poudriere.conf"
+pconf="/usr/local/etc/poudriere.conf"
+nconf="/usr/local/etc/nginx/nginx.conf"
 poud="ports-mgmt/poudriere-devel"
 
 
@@ -42,8 +43,10 @@ pzfs() {
 
 poud() {
     pkg install -q -y "$poud" git www/nginx
-    mv -v "$conf" "$conf.$(sha256 -q "$conf")"
-    cp "/vagrant/${conf##*/}" "$conf"
+    mv -v "$pconf" "$pconf.$(sha256 -q "$pconf")"
+    cp "/vagrant/${pconf##*/}" "$pconf"
+    mv -v "$nconf" "$nconf.$(sha256 -q "$pconf")"
+    cp "/vagrant/${nconf##*/}" "$nconf"
 
     mkdir -p /usr/ports/distfiles
     poudriere jail -c -j "$jail" -v "$jailver" || :
@@ -54,11 +57,9 @@ poud() {
 	e="${d%.d}"
 	cat "$d"/* > "${e}"
     done
-    ln -snf /usr/local/poudriere/data/logs/bulk /usr/local/www/nginx/poudriere-bulk
-    ln -snf /usr/local/poudriere/data/packages /usr/local/www/nginx/packages
     sysrc nginx_enable="YES"
     sysrc poudriered_enable="YES"
-    service nginx status || service nginx start
+    service nginx restart || service nginx start
     service poudriered status || service poudriered start
     poudriere queue bulk -j "$jail" -p "$ports" -z "$set" ports-mgmt/pkg
 }
